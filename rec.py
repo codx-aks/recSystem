@@ -5,12 +5,10 @@ import seaborn as sns
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Load data
 ratings = pd.read_csv('/Users/akshayv/Desktop/ratings.csv', usecols=range(3))
 events = pd.read_csv('/Users/akshayv/Desktop/events.csv', usecols=range(8))
 users = pd.read_csv('/Users/akshayv/Desktop/users.csv', usecols=range(5))
 
-# Print basic information about the datasets
 print(ratings.head())
 print(events.head())
 
@@ -49,41 +47,6 @@ C = event_stats['count'].mean()
 m = event_stats['mean'].mean()
 print(f"Average number of ratings for a given event: {C:.2f}")
 print(f"Average rating for a given event: {m:.2f}")
-
-
-def bayesian_avg(ratings):
-    bayesian_avg = (C * m + ratings.sum()) / (C + ratings.count())
-    return round(bayesian_avg, 3)
-
-
-bayesian_avg_ratings = ratings.groupby('eventId')['rating'].agg(bayesian_avg).reset_index()
-bayesian_avg_ratings.columns = ['eventId', 'bayesian_avg']
-event_stats = event_stats.merge(bayesian_avg_ratings, on='eventId')
-event_stats = event_stats.merge(events[['eventId', 'name']])
-event_stats.sort_values(by='bayesian_avg', ascending=False)
-
-event_stats.sort_values('bayesian_avg', ascending=True).head()
-
-
-def create_event_profiles(events):
-    events['type'] = events['type'].apply(lambda x: x.split('|'))
-    type_frequency = Counter(t for types in events['type'] for t in types)
-    type_frequency_df = pd.DataFrame([type_frequency]).T.reset_index()
-    type_frequency_df.columns = ['type', 'count']
-
-    sns.barplot(x='type', y='count', hue='type', data=type_frequency_df.sort_values(by='count', ascending=False),
-                palette='viridis', legend=False)
-    plt.xticks(rotation=90)
-    plt.show()
-
-    types = list(type_frequency.keys())
-    event_profiles = pd.DataFrame(index=events.index, columns=types, data=0)
-    for idx, row in events.iterrows():
-        event_profiles.loc[idx, row['type']] = 1
-    return event_profiles
-
-
-event_profile = create_event_profiles(events)
 
 from scipy.sparse import csr_matrix
 
@@ -140,8 +103,43 @@ plt.xlabel("number of ratings per event")
 plt.ylabel("density")
 plt.show()
 
+def bayesian_avg(ratings):
+    bayesian_avg = (C * m + ratings.sum()) / (C + ratings.count())
+    return round(bayesian_avg, 3)
 
-def create_user_profile(user_id, ratings, events, event_profile):
+
+bayesian_avg_ratings = ratings.groupby('eventId')['rating'].agg(bayesian_avg).reset_index()
+bayesian_avg_ratings.columns = ['eventId', 'bayesian_avg']
+event_stats = event_stats.merge(bayesian_avg_ratings, on='eventId')
+event_stats = event_stats.merge(events[['eventId', 'name']])
+event_stats.sort_values(by='bayesian_avg', ascending=False)
+
+event_stats.sort_values('bayesian_avg', ascending=True).head()
+
+
+def create_event_profiles_eventtype(events):
+    events['type'] = events['type'].apply(lambda x: x.split('|'))
+    type_frequency = Counter(t for types in events['type'] for t in types)
+    type_frequency_df = pd.DataFrame([type_frequency]).T.reset_index()
+    type_frequency_df.columns = ['type', 'count']
+
+    sns.barplot(x='type', y='count', hue='type', data=type_frequency_df.sort_values(by='count', ascending=False),
+                palette='viridis', legend=False)
+    plt.xticks(rotation=90)
+    plt.show()
+
+    types = list(type_frequency.keys())
+    event_profiles = pd.DataFrame(index=events.index, columns=types, data=0)
+    for idx, row in events.iterrows():
+        event_profiles.loc[idx, row['type']] = 1
+    return event_profiles
+
+
+event_profile_eventtype = create_event_profiles_eventtype(events)
+print(event_profile_eventtype)
+
+
+def create_user_profile_eventtype(user_id, ratings, events, event_profile):
     user_ratings = ratings[ratings['UserId'] == user_id].merge(events, on='eventId', how='left')
     user_ratings = user_ratings.drop(
         columns=['UserId', 'eventId', 'name', 'peoplecount', 'daysleft', 'location', 'agerecommended', 'description'])
@@ -171,8 +169,8 @@ def create_user_profile(user_id, ratings, events, event_profile):
     return user_profile
 
 from sklearn.preprocessing import MinMaxScaler
-def generate_recommendations(user_id, ratings, events, event_profile):
-    user_profile = create_user_profile(user_id, ratings, events, event_profile)
+def generate_recommendations_eventtype(user_id, ratings, events, event_profile):
+    user_profile = create_user_profile_eventtype(user_id, ratings, events, event_profile)
 
     similarity_scores = cosine_similarity(user_profile, event_profile)
 
@@ -181,24 +179,216 @@ def generate_recommendations(user_id, ratings, events, event_profile):
 
     event_ids = events['eventId']
     event_similarity = pd.DataFrame({'eventId': event_ids, 'similarity': similarity_scores_normalized})
-    print(event_similarity)
-    ranked_events = event_similarity.sort_values(by='similarity', ascending=False)
 
-    return ranked_events
+    return event_similarity
 
 
 user_id = 1
-recommendations_user_profile = generate_recommendations(user_id, ratings, events, event_profile)
-print(recommendations_user_profile.head(16))
+recommendations_user_profile_type = generate_recommendations_eventtype(user_id, ratings, events, event_profile_eventtype)
+print(recommendations_user_profile_type.head(16))
+
+def create_event_profiles_count(events):
+
+    count_ranges = [0, 20,50,100,250,500,1000,5000,100000]
+    count_profile = pd.DataFrame(index=events.index, columns=count_ranges, data=0)
+
+    for idx, row in events.iterrows():
+        for count_range in count_ranges:
+            if row['peoplecount'] >= count_range:
+                count_profile.loc[idx, count_range] = 1
+
+    plt.figure(figsize=(10, 6))
+    sns.countplot(x='peoplecount',hue='peoplecount', data=events, palette='viridis')
+    plt.title("Distribution of people count", fontsize=14)
+    plt.xlabel("people count")
+    plt.ylabel("Count")
+    plt.xticks(rotation=45)
+    plt.show()
+
+    return count_profile
+
+event_profile_count = create_event_profiles_count(events)
+print(event_profile_count)
+
+def create_user_profile_count(user_id, ratings, events, event_profile):
+    user_ratings = ratings[ratings['UserId'] == user_id].merge(events, on='eventId', how='left')
+    user_ratings = user_ratings.drop(
+        columns=['UserId', 'eventId', 'name', 'type', 'daysleft', 'location', 'agerecommended', 'description'])
+
+    count_ranges = [0, 20, 50, 100, 250, 500, 1000, 5000, 100000]
+    count_profile = pd.DataFrame(index=np.arange(len(user_ratings)), columns=count_ranges, data=0)
+
+    for idx, row in user_ratings.iterrows():
+        for count_range in count_ranges:
+            if row['peoplecount'] >= count_range:
+                count_profile.loc[idx, count_range] = 1
+
+    mean_rating_per_count = {}
+    for count_range in count_ranges:
+        ratings = user_ratings[user_ratings['peoplecount'] >= count_range]['rating']
+        mean_rating_per_count[count_range] = ratings.mean()
+
+    for count_range in count_ranges:
+        if count_range not in mean_rating_per_count:
+            mean_rating_per_count[count_range] = 0
+
+    user_profile = pd.Series([mean_rating_per_count[count_range] for count_range in count_ranges]).values.reshape(1, -1)
+    user_profile = np.nan_to_num(user_profile, nan=0)
+    print(user_profile)
+    return user_profile
+
+def generate_recommendations_count(user_id, ratings, events, event_profile):
+    user_profile = create_user_profile_count(user_id, ratings, events, event_profile)
+
+    similarity_scores = cosine_similarity(user_profile, event_profile)
+
+    scaler = MinMaxScaler()
+    similarity_scores_normalized = scaler.fit_transform(similarity_scores.reshape(-1, 1)).flatten()
+
+    event_ids = events['eventId']
+    event_similarity = pd.DataFrame({'eventId': event_ids, 'similarity': similarity_scores_normalized})
+
+    return event_similarity
 
 
+user_id = 1
+recommendations_user_profile_count = generate_recommendations_count(user_id, ratings, events, event_profile_count)
+print(recommendations_user_profile_count.head(16))
+
+def create_event_profiles_agerecommended(events):
+
+    age_ranges = [0, 6, 12, 16, 18, 21, 30, 45]
+    age_profile = pd.DataFrame(index=events.index, columns=age_ranges, data=0)
+
+    for idx, row in events.iterrows():
+        for age_range in age_ranges:
+            if row['agerecommended'] <= age_range:
+                age_profile.loc[idx, age_range] = 1
+
+    plt.figure(figsize=(10, 6))
+    sns.countplot(x='agerecommended',hue='agerecommended', data=events, palette='viridis')
+    plt.title("Distribution of Age Recommendations", fontsize=14)
+    plt.xlabel("Age Recommended")
+    plt.ylabel("Count")
+    plt.xticks(rotation=45)
+    plt.show()
+
+    return age_profile
+
+event_profile_agerecommended = create_event_profiles_agerecommended(events)
+print(event_profile_agerecommended)
+
+def create_user_profile_agerecommended(user_id, ratings, events, event_profile):
+    user_ratings = ratings[ratings['UserId'] == user_id].merge(events, on='eventId', how='left')
+    user_ratings = user_ratings.drop(
+        columns=['UserId', 'eventId', 'name', 'type', 'daysleft', 'location', 'peoplecount', 'description'])
+
+    agerecommended_ranges = [0, 6, 12, 16, 18, 21, 30, 45]
+    agerecommended_profile = pd.DataFrame(index=np.arange(len(user_ratings)), columns=agerecommended_ranges, data=0)
+
+    for idx, row in user_ratings.iterrows():
+        for agerecommended_range in agerecommended_ranges:
+            if row['agerecommended'] <= agerecommended_range:
+                agerecommended_profile.loc[idx, agerecommended_range] = 1
+
+    mean_rating_per_agerecommended = {}
+    for agerecommended_range in agerecommended_ranges:
+        ratings = user_ratings[user_ratings['agerecommended'] >= agerecommended_range]['rating']
+        mean_rating_per_agerecommended[agerecommended_range] = ratings.mean()
+
+    for agerecommended_range in agerecommended_ranges:
+        if agerecommended_range not in mean_rating_per_agerecommended:
+            mean_rating_per_agerecommended[agerecommended_range] = 0
+
+    user_profile = pd.Series([mean_rating_per_agerecommended[agerecommended_range] for agerecommended_range in agerecommended_ranges]).values.reshape(1, -1)
+    user_profile = np.nan_to_num(user_profile, nan=0)
+    print(user_profile)
+    return user_profile
+
+def generate_recommendations_agerecommended(user_id, ratings, events, event_profile):
+    user_profile = create_user_profile_agerecommended(user_id, ratings, events, event_profile)
+
+    similarity_scores = cosine_similarity(user_profile, event_profile)
+
+    scaler = MinMaxScaler()
+    similarity_scores_normalized = scaler.fit_transform(similarity_scores.reshape(-1, 1)).flatten()
+
+    event_ids = events['eventId']
+    event_similarity = pd.DataFrame({'eventId': event_ids, 'similarity': similarity_scores_normalized})
+
+    return event_similarity
 
 
+user_id = 1
+recommendations_user_profile_agerecommended = generate_recommendations_agerecommended(user_id, ratings, events, event_profile_agerecommended)
+print(recommendations_user_profile_agerecommended.head(16))
+def create_event_profiles_daysleft(events):
+
+    daysleft_ranges = [1,3,7,15,30,60,100,1000]
+    daysleft_profile = pd.DataFrame(index=events.index, columns=daysleft_ranges, data=0)
+
+    for idx, row in events.iterrows():
+        for daysleft_range in daysleft_ranges:
+            if row['daysleft'] >= daysleft_range:
+                daysleft_profile.loc[idx, daysleft_range] = 1
+
+    plt.figure(figsize=(10, 6))
+    sns.countplot(x='daysleft',hue='daysleft', data=events, palette='viridis')
+    plt.title("Distribution of days left", fontsize=14)
+    plt.xlabel("days left")
+    plt.ylabel("Count")
+    plt.xticks(rotation=45)
+    plt.show()
+
+    return daysleft_profile
+
+event_profile_daysleft = create_event_profiles_daysleft(events)
+print(event_profile_daysleft)
+
+def create_user_profile_daysleft(user_id, ratings, events, event_profile):
+    user_ratings = ratings[ratings['UserId'] == user_id].merge(events, on='eventId', how='left')
+    user_ratings = user_ratings.drop(
+        columns=['UserId', 'eventId', 'name', 'type', 'peoplecount', 'location', 'agerecommended', 'description'])
+
+    daysleft_ranges =  [1,3,7,15,30,60,100,1000]
+    daysleft_profile = pd.DataFrame(index=np.arange(len(user_ratings)), columns=daysleft_ranges, data=0)
+
+    for idx, row in user_ratings.iterrows():
+        for daysleft_range in daysleft_ranges:
+            if row['daysleft'] >= daysleft_range:
+                daysleft_profile.loc[idx, daysleft_range] = 1
+
+    mean_rating_per_daysleft = {}
+    for daysleft_range in daysleft_ranges:
+        ratings = user_ratings[user_ratings['daysleft'] >= daysleft_range]['rating']
+        mean_rating_per_daysleft[daysleft_range] = ratings.mean()
+
+    for daysleft_range in daysleft_ranges:
+        if daysleft_range not in mean_rating_per_daysleft:
+            mean_rating_per_daysleft[daysleft_range] = 0
+
+    user_profile = pd.Series([mean_rating_per_daysleft[daysleft_range] for daysleft_range in daysleft_ranges]).values.reshape(1, -1)
+    user_profile = np.nan_to_num(user_profile, nan=0)
+    print(user_profile)
+    return user_profile
+
+def generate_recommendations_daysleft(user_id, ratings, events, event_profile):
+    user_profile = create_user_profile_daysleft(user_id, ratings, events, event_profile)
+
+    similarity_scores = cosine_similarity(user_profile, event_profile)
+
+    scaler = MinMaxScaler()
+    similarity_scores_normalized = scaler.fit_transform(similarity_scores.reshape(-1, 1)).flatten()
+
+    event_ids = events['eventId']
+    event_similarity = pd.DataFrame({'eventId': event_ids, 'similarity': similarity_scores_normalized})
+
+    return event_similarity
 
 
-
-
-
+user_id = 1
+recommendations_user_profile_daysleft = generate_recommendations_daysleft(user_id, ratings, events, event_profile_daysleft)
+print(recommendations_user_profile_daysleft.head(16))
 
 
 
