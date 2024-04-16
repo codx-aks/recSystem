@@ -13,7 +13,7 @@ print(ratings.head())
 print(events.head())
 print(users.head())
 
-user_id = 1
+user_id = 101
 
 n_ratings = len(ratings)
 n_events = len(events)
@@ -416,16 +416,61 @@ rec_result['similarity'] += (0.13 * recommendations_user_profile_agerecommended[
 rec_result['similarity'] += (0.13 * recommendations_user_profile_count['similarity'])
 rec_result['similarity'] += (0.61 * recommendations_user_profile_type['similarity'])
 
-rec_result = rec_result.sort_values(by='similarity', ascending=False)
-print(rec_result.head(16))
+
+def quick_select_linear(arr, k):
+# QuickSelect algorithm with linear time complexity.
+
+    if len(arr) == 1:
+        return arr[0]
+
+    pivot = median_of_medians(arr)
+    left, mid, right = partition(arr, pivot)
+
+    if k <= len(left):
+        return quick_select_linear(left, k)
+    elif k <= len(left) + len(mid):
+        return pivot
+    else:
+        return quick_select_linear(right, k - len(left) - len(mid))
 
 
+def median_of_medians(arr):
+# Find the median of medians of the input array.
+
+    n = len(arr)
+    if n <= 5:
+        return sorted(arr)[n // 2]
+
+    chunks = [arr[i:i + 5] for i in range(0, n, 5)]
+    medians = [sorted(chunk)[len(chunk) // 2] for chunk in chunks]
+    pivot = median_of_medians(medians)
+    return pivot
 
 
+def partition(arr, pivot):
+# Partition the input array into three parts based on the pivot.
+    left = []
+    mid = []
+    right = []
+    for similarity in arr:
+        if similarity < pivot:
+            left.append(similarity)
+        elif similarity == pivot:
+            mid.append(similarity)
+        else:
+            right.append(similarity)
+    return left, mid, right
 
+k=50
 
+top_k_threshold = quick_select_linear(rec_result['similarity'], k)
+top_k_similarity = rec_result['similarity'][rec_result['similarity'] >= top_k_threshold]
 
+top_k_similarity = top_k_similarity.sort_values(ascending=False)
 
+top_k_events = rec_result.loc[top_k_similarity.index[:k]]
+
+print(top_k_events)
 
 def knowledge_based_recommendations(user_interests, top_n=5):
     filtered_events = events[events['type'].apply(lambda types: any(interest in types for interest in user_interests))]
