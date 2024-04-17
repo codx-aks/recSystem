@@ -32,8 +32,8 @@ with open("events.csv", "a", newline="") as csvfile:
   writer.writerow(["eventId", "name", "description", "type", "peoplecount", "agerecommended", "daysleft", "location"])
 
   # Generate and write 300 events
-  for event_id in range(301, 25001):
+  for event_id in range(301, 50001):
     event_data = generate_event(event_id)
     writer.writerow(event_data)
 
-print("CSV file populated with 300 events!")
+print("CSV file populated with 50000 events!")

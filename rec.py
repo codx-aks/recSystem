@@ -5,9 +5,9 @@ import seaborn as sns
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 
-ratings = pd.read_csv('/Users/akshayv/Desktop/ratings.csv', usecols=range(3))
-events = pd.read_csv('/Users/akshayv/Desktop/events.csv', usecols=range(8))
-users = pd.read_csv('/Users/akshayv/Desktop/users.csv', usecols=range(5))
+ratings = pd.read_csv('ratings.csv', usecols=range(3))
+events = pd.read_csv('events.csv', usecols=range(8))
+users = pd.read_csv('users.csv', usecols=range(5))
 
 print(ratings.head())
 print(events.head())
@@ -461,7 +461,7 @@ def partition(arr, pivot):
             right.append(similarity)
     return left, mid, right
 
-k=50
+k=25
 
 top_k_threshold = quick_select_linear(rec_result['similarity'], k)
 top_k_similarity = rec_result['similarity'][rec_result['similarity'] >= top_k_threshold]
@@ -473,22 +473,22 @@ top_k_events = rec_result.loc[top_k_similarity.index[:k]]
 print(top_k_events)
 
 
-def knowledge_based_recommendations(user_interests, top_n=5):
-    filtered_events = events[events['type'].apply(lambda types: any(interest in types for interest in user_interests))]
-
-    bayesian_ratings = bayesian_avg(ratings)
-    bayesian_ratings = bayesian_ratings.reindex(filtered_events['eventId']).fillna(0)  # Fill NaN with 0
-    top_n = 2000
-    top_n_events = quick_select_linear(bayesian_ratings, top_n)
-    recommended_events = filtered_events[filtered_events['eventId'].isin(top_n_events)]
-
-    return recommended_events
-
-
-user_interests_str = users.loc[users['userId'] == user_id, 'Interests'].values[0]
-user_interests = user_interests_str.split('|')
-
-recommendations = knowledge_based_recommendations(user_interests, 10)
-
-print("Knowledge-based recommendations:")
-print(recommendations[['eventId', 'name', 'type']])
+# def knowledge_based_recommendations(user_interests, top_n=5):
+#     filtered_events = events[events['type'].apply(lambda types: any(interest in types for interest in user_interests))]
+#
+#     bayesian_ratings = bayesian_avg(ratings)
+#     bayesian_ratings = bayesian_ratings.reindex(filtered_events['eventId']).fillna(0)  # Fill NaN with 0
+#     top_n = 2000
+#     top_n_events = quick_select_linear(bayesian_ratings, top_n)
+#     recommended_events = filtered_events[filtered_events['eventId'].isin(top_n_events)]
+#
+#     return recommended_events
+#
+#
+# user_interests_str = users.loc[users['userId'] == user_id, 'Interests'].values[0]
+# user_interests = user_interests_str.split('|')
+#
+# recommendations = knowledge_based_recommendations(user_interests, 10)
+#
+# print("Knowledge-based recommendations:")
+# print(recommendations[['eventId', 'name', 'type']])

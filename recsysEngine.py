@@ -5,9 +5,9 @@ import seaborn as sns
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 
-ratings = pd.read_csv('/Users/akshayv/Desktop/ratings.csv', usecols=range(3))
-events = pd.read_csv('/Users/akshayv/Desktop/events.csv', usecols=range(8))
-users = pd.read_csv('/Users/akshayv/Desktop/users.csv', usecols=range(5))
+ratings = pd.read_csv('ratings.csv', usecols=range(3))
+events = pd.read_csv('events.csv', usecols=range(8))
+users = pd.read_csv('users.csv', usecols=range(5))
 
 user_id = 101
 def bayesian_avg(ratings):
@@ -34,10 +34,12 @@ event_profile_eventtype = create_event_profiles_eventtype(events)
 
 def create_user_profile_eventtype(user_id, ratings, events, event_profile):
     user_ratings = ratings[ratings['UserId'] == user_id].merge(events, on='eventId', how='left')
+    print(user_ratings)
     user_ratings = user_ratings.drop(
         columns=['UserId', 'eventId', 'name', 'peoplecount', 'daysleft', 'location', 'agerecommended', 'description'])
     event_type_scores = {}
     for idx, row in user_ratings.iterrows():
+
         event_types = row['type']
         rating = row['rating']
         for event_type in event_types:
