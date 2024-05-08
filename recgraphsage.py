@@ -69,7 +69,7 @@ features = torch.tensor(np.concatenate((genre, title), axis=1), dtype=torch.floa
 print('#features:', features.shape[1])
 in_feats = features.shape[1]
 
-from sageconv import SAGEConv
+from sage_conv import SAGEConv
 
 class GraphSAGEModel(nn.Module):
     def __init__(self,

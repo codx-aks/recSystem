@@ -1,0 +1,126 @@
+courseId,courseName,year
+1,High-Throughput Computing,3
+2,Numerical Linear Algebra,3
+3,Cybersecurity,1
+4,Distributed Algorithms,1
+5,Computational Neuroscience,4
+6,Data Stream Processing,2
+7,System Administration,2
+8,Essentials of Computer Science,4
+9,Human-Centered Computing,4
+10,Machine Translation,3
+11,Natural Language Interfaces (NLI),1
+12,Information Systems,4
+13,Computational Sociology,2
+14,Information Security,4
+15,Computational Social Science,3
+16,Parallel Programming,3
+17,Ethical Hacking & Penetration Testing,4
+18,Spatial Databases,4
+19,Computer-Aided Design (CAD),1
+20,Software Reusability,4
+21,User Interface (UI) Design,2
+22,Computational Chemistry,4
+23,Compiler Optimization,2
+24,Software Quality Assurance (QA),1
+25,Parallel and Distributed Processing,1
+26,Logic Design,3
+27,Digital Signal Processing,4
+28,Internet of Things (IoT),3
+29,Computer Science Pedagogy,2
+30,Advanced Data Structres and Algorithms,4
+31,Cloud Security,4
+32,Computational Biology,1
+33,Discrete Mathematics,1
+34,Human-Computer Interaction,4
+35,Cryptography,4
+36,Metaheuristics,4
+37,Software Architecture,4
+38,Information Retrieval,2
+39,Formal Verification,2
+40,Discrete Structres,4
+41,Digital Forensics,4
+42,Digital Image Processing,3
+43,Verification & Validation,3
+44,Information Visualization,1
+45,Game Development,2
+46,Explainable AI (XAI),3
+47,Software Defined Networking (SDN),4
+48,Web Development,2
+49,Computer Graphics,2
+50,Virtual Reality (VR),3
+51,Computational Economics,3
+52,Game AI,2
+53,Compiler Design,1
+54,Network Security,4
+55,Software Project Management,3
+56,Theoretical Computer Science,4
+57,Distributed Systems,4
+58,Type Theory,4
+59,Information Architecture,1
+60,Industrial Economics and Foreign Trades,2
+61,Quantum Computing,4
+62,Natural Language Processing,3
+63,Graph Algorithms,4
+64,Concurrent Programming,4
+65,Pattern Recognition,4
+66,Computational Number Theory,2
+67,Computer Animation,1
+68,Security Engineering,1
+69,Computability Theory,3
+70,Computational Ethics,3
+71,Design Thinking,4
+72,Natural Language Generation,1
+73,Machine Learning,4
+74,Computer-Assisted Medicine,1
+75,Agile Development,1
+76,Scientific Computing,3
+77,Computational Physics,1
+78,Design Patterns,1
+79,Software Engineering,3
+80,Blockchain Technology,3
+81,Deep Learning,3
+82,Software Testing,3
+83,Operating Systems,4
+84,Data Mining,4
+85,High-Level Synthesis,1
+86,Computer Networks,1
+87,Evolutionary Algorithms,1
+88,Data Analysis,3
+89,Computer Vision,3
+90,Data Warehousing,1
+91,Machine Learning for Finance,4
+92,Logic Programming,1
+93,Natural Language Understanding,2
+94,High-Performance Computing Architectures,4
+95,Bioinformatics,4
+96,Natural Language Processing (NLP),3
+97,Artificial Intelligence,4
+98,Reversible Computing,3
+99,Data Privacy,4
+100,Geometric Modeling,4
+101,Formal Languages & Automata,4
+102,Constraint Satisfaction Problems,3
+103,Sustainability in Computing,1
+104,Optimization Techniques,4
+105,Formal Methods,2
+106,High-Performance Computing,4
+107,Parallel and Distributed File Systems,4
+108,Algorithms & Data Structures,1
+109,Computer Architecture,3
+110,Functional Programming,2
+111,Numerical Analysis,2
+112,Programming Languages,2
+113,Data Science,3
+114,Cloud Computing,2
+115,Mobile App Development,3
+116,Automata Theory & Formal Languages,4
+117,Computational Geometry,2
+118,Machine Learning for Business,1
+119,Probabilistic Programming,2
+120,Database Management Systems,1
+121,Parallel Algorithms,4
+122,Ethical Hacking,2
+123,Robotics,4
+124,Software Defined Radio (SDR),1
+125,Combinatorics and Graph Theory,4

@@ -327,26 +327,24 @@ top_k_events = rec_result.loc[top_k_similarity.index[:k]]
 print(top_k_events)
 
 
-def knowledge_based_recommendations(user_interests, top_n=5):
-    filtered_events = events[events['type'].apply(lambda types: any(interest in types for interest in user_interests))]
-
-    # Calculate Bayesian average ratings for events
-    bayesian_ratings = bayesian_avg(ratings)
-    bayesian_ratings = bayesian_ratings.reindex(filtered_events['eventId']).fillna(0)  # Fill NaN with 0
-
-    # Sort events based on Bayesian average ratings
-    top_rated_events = bayesian_ratings.sort_values(by='rating', ascending=False).index
-
-    filtered_top_rated_events = filtered_events[filtered_events['eventId'].isin(top_rated_events)]
-    recommended_events = filtered_top_rated_events.head(top_n)
-
-    return recommended_events
-
-
-user_interests_str = users.loc[users['userId'] == user_id, 'Interests'].values[0]
-user_interests = user_interests_str.split('|')
-
-recommendations = knowledge_based_recommendations(user_interests, 10)
-
-print("Knowledge-based recommendations:")
-print(recommendations[['eventId', 'name', 'type']])
+# def knowledge_based_recommendations(user_interests, top_n=5):
+#     filtered_events = events[events['type'].apply(lambda types: any(interest in types for interest in user_interests))]
+#
+#     bayesian_ratings = bayesian_avg(ratings)
+#     bayesian_ratings = bayesian_ratings.reindex(filtered_events['eventId']).fillna(0)
+#
+#     top_rated_events = bayesian_ratings.sort_values(by='rating', ascending=False).index
+#
+#     filtered_top_rated_events = filtered_events[filtered_events['eventId'].isin(top_rated_events)]
+#     recommended_events = filtered_top_rated_events.head(top_n)
+#
+#     return recommended_events
+#
+#
+# user_interests_str = users.loc[users['userId'] == user_id, 'Interests'].values[0]
+# user_interests = user_interests_str.split('|')
+#
+# recommendations = knowledge_based_recommendations(user_interests, 10)
+#
+# print("Knowledge-based recommendations:")
+# print(recommendations[['eventId', 'name', 'type']])
